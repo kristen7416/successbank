@@ -7,44 +7,44 @@ export default defineAppConfig({
     'pages/profile/index'
   ],
   window: {
-    backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#f8fafc',
-    navigationBarTitleText: '成功银行',
-    navigationBarTextStyle: 'black'
+    backgroundTextStyle: 'dark',
+    navigationBarBackgroundColor: '#0f172a',
+    navigationBarTitleText: '地球Online',
+    navigationBarTextStyle: 'white'
   },
   tabBar: {
-    color: '#94a3b8',
-    selectedColor: '#0ea5e9',
-    backgroundColor: '#ffffff',
+    color: '#64748b',
+    selectedColor: '#06b6d4',
+    backgroundColor: '#0f172a',
     borderStyle: 'black',
     list: [
       {
         pagePath: 'pages/index/index',
-        text: '首页',
-        iconPath: './assets/tabbar/home.png',
-        selectedIconPath: './assets/tabbar/home-active.png'
+        text: '主城',
+        iconPath: './assets/tabbar/house.png',
+        selectedIconPath: './assets/tabbar/house-active.png'
       },
       {
         pagePath: 'pages/deposit/index',
-        text: '存款',
+        text: '金库',
         iconPath: './assets/tabbar/circle-plus.png',
         selectedIconPath: './assets/tabbar/circle-plus-active.png'
       },
       {
         pagePath: 'pages/tasks/index',
-        text: '任务',
+        text: '远征',
         iconPath: './assets/tabbar/target.png',
         selectedIconPath: './assets/tabbar/target-active.png'
       },
       {
         pagePath: 'pages/toolbox/index',
-        text: '工具箱',
+        text: '技能',
         iconPath: './assets/tabbar/wrench.png',
         selectedIconPath: './assets/tabbar/wrench-active.png'
       },
       {
         pagePath: 'pages/profile/index',
-        text: '我的',
+        text: '角色',
         iconPath: './assets/tabbar/user.png',
         selectedIconPath: './assets/tabbar/user-active.png'
       }
