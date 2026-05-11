@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Network } from "@/network"
-import { Lock, Check } from "lucide-react-taro"
+import { Lock, Check, Trophy } from "lucide-react-taro"
 
-// 21天任务数据
 const TASKS_21 = [
   { day: 1, title: "对自己说我值得", desc: "站在镜子前，看着自己的眼睛，认真地说三遍：我值得所有美好。", category: "self-affirmation" },
   { day: 2, title: "写下3个优点", desc: "拿出纸笔，认真写下你身上的3个优点。不需要很伟大，我善良、我努力都算。", category: "self-discovery" },
@@ -32,38 +31,21 @@ const TASKS_21 = [
   { day: 21, title: "给未来的自己一封信", desc: "写给3个月后的自己，告诉TA你已经变得更勇敢、更值得了。", category: "self-love" },
 ]
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "self-affirmation": "bg-sky-100 text-sky-700",
-  "self-discovery": "bg-violet-100 text-violet-700",
-  "acceptance": "bg-emerald-100 text-emerald-700",
-  "self-care": "bg-amber-100 text-amber-700",
-  "boundary": "bg-rose-100 text-rose-700",
-  "gratitude": "bg-orange-100 text-orange-700",
-  "review": "bg-sky-100 text-sky-700",
-  "self-compassion": "bg-emerald-100 text-emerald-700",
-  "courage": "bg-violet-100 text-violet-700",
-  "self-love": "bg-rose-100 text-rose-700",
-  "achievement": "bg-amber-100 text-amber-700",
-  "vulnerability": "bg-orange-100 text-orange-700",
-  "mindfulness": "bg-emerald-100 text-emerald-700",
-  "celebration": "bg-amber-100 text-amber-700",
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  "self-affirmation": "自我肯定",
-  "self-discovery": "自我发现",
-  "acceptance": "接纳",
-  "self-care": "自我关怀",
-  "boundary": "边界",
-  "gratitude": "感恩",
-  "review": "复盘",
-  "self-compassion": "自我慈悲",
-  "courage": "勇气",
-  "self-love": "爱自己",
-  "achievement": "成就",
-  "vulnerability": "脆弱",
-  "mindfulness": "正念",
-  "celebration": "庆祝",
+const CATEGORY_STYLES: Record<string, { color: string; label: string }> = {
+  "self-affirmation": { color: "bg-teal-100 border-2 border-teal-300 text-teal-700", label: "自我肯定" },
+  "self-discovery": { color: "bg-purple-100 border-2 border-purple-300 text-purple-700", label: "自我发现" },
+  "acceptance": { color: "bg-emerald-100 border-2 border-emerald-300 text-emerald-700", label: "接纳" },
+  "self-care": { color: "bg-yellow-100 border-2 border-yellow-300 text-yellow-700", label: "自我关怀" },
+  "boundary": { color: "bg-pink-100 border-2 border-pink-300 text-pink-700", label: "边界" },
+  "gratitude": { color: "bg-orange-100 border-2 border-orange-300 text-orange-700", label: "感恩" },
+  "review": { color: "bg-teal-100 border-2 border-teal-300 text-teal-700", label: "复盘" },
+  "self-compassion": { color: "bg-emerald-100 border-2 border-emerald-300 text-emerald-700", label: "自我慈悲" },
+  "courage": { color: "bg-purple-100 border-2 border-purple-300 text-purple-700", label: "勇气" },
+  "self-love": { color: "bg-pink-100 border-2 border-pink-300 text-pink-700", label: "爱自己" },
+  "achievement": { color: "bg-yellow-100 border-2 border-yellow-300 text-yellow-700", label: "成就" },
+  "vulnerability": { color: "bg-orange-100 border-2 border-orange-300 text-orange-700", label: "脆弱" },
+  "mindfulness": { color: "bg-emerald-100 border-2 border-emerald-300 text-emerald-700", label: "正念" },
+  "celebration": { color: "bg-yellow-100 border-2 border-yellow-300 text-yellow-700", label: "庆祝" },
 }
 
 export default function TasksPage() {
@@ -115,54 +97,57 @@ export default function TasksPage() {
   const progressPercent = (completedDays.length / 21) * 100
 
   return (
-    <View className="min-h-full bg-gray-50 pb-20">
-      {/* 顶部进度区 */}
-      <View className="bg-sky-500 px-4 pt-4 pb-6 rounded-b-3xl">
+    <View className="min-h-full bg-amber-50 pb-20">
+      {/* 顶部进度区 - 游戏任务面板 */}
+      <View className="bg-gradient-to-b from-teal-400 to-teal-500 px-4 pt-4 pb-8 rounded-b-[2rem]">
         <View className="flex flex-row items-center justify-between mb-3">
           <View>
-            <Text className="block text-white text-lg font-bold">21天配得感计划</Text>
-            <Text className="block text-sky-100 text-xs mt-1">每天一个小行动，重新认识我值得</Text>
+            <Text className="block text-white text-lg font-black">21天配得感计划</Text>
+            <Text className="block text-teal-100 text-xs font-bold mt-1">每天一个小行动，重新认识我值得</Text>
           </View>
-          <View className="bg-white bg-opacity-20 rounded-full px-3 py-1">
-            <Text className="block text-white text-xs font-semibold">Day {currentDay}/21</Text>
+          <View className="rounded-full border-2 border-yellow-300 bg-yellow-100 px-3 py-1">
+            <Text className="block text-yellow-700 text-xs font-black">Day {currentDay}/21</Text>
           </View>
         </View>
-        <Progress value={progressPercent} className="h-2" />
+        <Progress value={progressPercent} className="h-3" />
         <View className="flex flex-row items-center justify-between mt-2">
-          <Text className="block text-sky-100 text-xs">已完成 {completedDays.length} 天</Text>
-          <Text className="block text-sky-100 text-xs">{Math.round(progressPercent)}%</Text>
+          <Text className="block text-teal-100 text-xs font-bold">已完成 {completedDays.length} 天</Text>
+          <Text className="block text-teal-100 text-xs font-bold">{Math.round(progressPercent)}%</Text>
         </View>
       </View>
 
       {/* 今日任务 */}
       <View className="px-4 -mt-4">
-        <Card className="border-0 shadow-lg">
+        <Card className="border-2 border-yellow-300 bg-gradient-to-b from-white to-amber-50 shadow-lg">
           <CardContent className="p-4">
             {(() => {
               const task = TASKS_21[currentDay - 1]
               if (!task) return null
               const isCompleted = completedDays.includes(currentDay)
+              const catStyle = CATEGORY_STYLES[task.category] || { color: "bg-stone-100 border-2 border-stone-300 text-stone-700", label: task.category }
               return (
                 <View>
                   <View className="flex flex-row items-center justify-between mb-2">
-                    <Badge variant={isCompleted ? "default" : "secondary"}>
-                      <Text className="block text-xs">今日任务 · Day {currentDay}</Text>
+                    <Badge className={`${catStyle.color} font-bold`}>
+                      <Text className="block text-xs font-bold">今日任务 · Day {currentDay}</Text>
                     </Badge>
                     {isCompleted && (
                       <View className="flex flex-row items-center gap-1">
-                        <Check size={14} color="#10b981" />
-                        <Text className="block text-emerald-600 text-xs">已完成</Text>
+                        <View className="w-5 h-5 rounded-full bg-emerald-400 flex items-center justify-center">
+                          <Check size={10} color="#fff" />
+                        </View>
+                        <Text className="block text-emerald-600 text-xs font-bold">已完成</Text>
                       </View>
                     )}
                   </View>
-                  <Text className="block text-base font-semibold text-gray-800 mb-2">{task.title}</Text>
-                  <Text className="block text-sm text-gray-500 leading-relaxed mb-3">{task.desc}</Text>
+                  <Text className="block text-base font-black text-stone-800 mb-2">{task.title}</Text>
+                  <Text className="block text-sm text-stone-500 leading-relaxed mb-3">{task.desc}</Text>
                   <View className="flex flex-row items-center justify-between">
-                    <Badge className={CATEGORY_COLORS[task.category] || "bg-gray-100 text-gray-700"}>
-                      <Text className="block text-xs">{CATEGORY_LABELS[task.category] || task.category}</Text>
+                    <Badge className={catStyle.color}>
+                      <Text className="block text-xs font-bold">{catStyle.label}</Text>
                     </Badge>
                     {!isCompleted && (
-                      <Button size="sm" disabled={completing} onClick={() => handleCompleteTask(currentDay)}>
+                      <Button size="sm" className="bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" disabled={completing} onClick={() => handleCompleteTask(currentDay)}>
                         <Text className="block text-sm text-white">
                           {completing ? "打卡中..." : "完成打卡"}
                         </Text>
@@ -178,53 +163,57 @@ export default function TasksPage() {
 
       {/* 全部任务列表 */}
       <View className="px-4 mt-4">
-        <Text className="block text-base font-semibold text-gray-800 mb-3">全部任务</Text>
+        <Text className="block text-base font-black text-stone-800 mb-3">全部任务</Text>
         <View className="flex flex-col gap-2">
           {TASKS_21.map((task) => {
             const isCompleted = completedDays.includes(task.day)
             const isCurrent = task.day === currentDay
             const isLocked = task.day > currentDay
             const isExpanded = expandedDay === task.day
+            const catStyle = CATEGORY_STYLES[task.category] || { color: "bg-stone-100 border-2 border-stone-300 text-stone-700", label: "" }
 
             return (
               <Card
                 key={task.day}
-                className={`border-0 shadow-sm ${
-                  isCurrent ? "border-l-4 border-l-sky-500" : ""
-                } ${isLocked ? "opacity-60" : ""}`}
+                className={`border-2 shadow-sm ${
+                  isCurrent ? "border-teal-300 bg-gradient-to-b from-teal-50 to-white" :
+                  isCompleted ? "border-emerald-200 bg-emerald-50" :
+                  isLocked ? "border-stone-200 bg-stone-50 opacity-50" :
+                  "border-amber-200 bg-white"
+                }`}
                 onClick={() => !isLocked && setExpandedDay(isExpanded ? null : task.day)}
               >
                 <CardContent className="p-3">
                   <View className="flex flex-row items-center justify-between">
                     <View className="flex flex-row items-center gap-2 flex-1">
                       {isCompleted ? (
-                        <View className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
-                          <Check size={12} color="#10b981" />
+                        <View className="w-7 h-7 rounded-lg bg-emerald-400 flex items-center justify-center">
+                          <Check size={14} color="#fff" />
                         </View>
                       ) : isLocked ? (
-                        <View className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                          <Lock size={12} color="#9ca3af" />
+                        <View className="w-7 h-7 rounded-lg bg-stone-200 flex items-center justify-center">
+                          <Lock size={12} color="#78716c" />
                         </View>
                       ) : (
-                        <View className="w-6 h-6 rounded-full bg-sky-100 flex items-center justify-center">
-                          <Text className="block text-sky-600 text-xs font-bold">{task.day}</Text>
+                        <View className="w-7 h-7 rounded-lg bg-teal-100 border-2 border-teal-300 flex items-center justify-center">
+                          <Text className="block text-teal-600 text-xs font-black">{task.day}</Text>
                         </View>
                       )}
                       <View className="flex-1">
-                        <Text className={`block text-sm ${isCompleted ? "text-gray-400 line-through" : "text-gray-700"}`}>
+                        <Text className={`block text-sm font-bold ${isCompleted ? "text-stone-400 line-through" : "text-stone-700"}`}>
                           Day {task.day}: {task.title}
                         </Text>
                       </View>
-                      <Badge className={CATEGORY_COLORS[task.category] || "bg-gray-100 text-gray-700"}>
-                        <Text className="block text-xs">{CATEGORY_LABELS[task.category] || ""}</Text>
+                      <Badge className={catStyle.color}>
+                        <Text className="block text-xs font-bold">{catStyle.label}</Text>
                       </Badge>
                     </View>
                   </View>
                   {isExpanded && (
-                    <View className="mt-2 ml-8">
-                      <Text className="block text-xs text-gray-500 leading-relaxed">{task.desc}</Text>
+                    <View className="mt-2 ml-9">
+                      <Text className="block text-xs text-stone-500 leading-relaxed">{task.desc}</Text>
                       {!isCompleted && !isLocked && (
-                        <Button size="sm" className="mt-2" onClick={(e) => {
+                        <Button size="sm" className="mt-2 bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" onClick={(e) => {
                           e.stopPropagation()
                           handleCompleteTask(task.day)
                         }}
@@ -243,11 +232,14 @@ export default function TasksPage() {
 
       {/* 底部鼓励 */}
       <View className="px-4 mt-4 mb-4">
-        <Card className="border-0 shadow-sm bg-amber-50">
+        <Card className="border-2 border-yellow-300 bg-gradient-to-b from-yellow-50 to-amber-50 shadow-md">
           <CardContent className="p-3">
-            <Text className="block text-amber-700 text-xs text-center">
-              完成21天计划，你将获得配得感大师勋章和100成功币奖励！
-            </Text>
+            <View className="flex flex-row items-center justify-center gap-2">
+              <Trophy size={16} color="#ca8a04" />
+              <Text className="block text-yellow-700 text-xs font-bold">
+                完成21天计划，获得配得感大师勋章和100成功币奖励！
+              </Text>
+            </View>
           </CardContent>
         </Card>
       </View>

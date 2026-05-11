@@ -8,14 +8,14 @@ export default defineAppConfig({
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#f8fafc',
+    navigationBarBackgroundColor: '#fffbeb',
     navigationBarTitleText: '成功银行',
     navigationBarTextStyle: 'black'
   },
   tabBar: {
     color: '#94a3b8',
-    selectedColor: '#0ea5e9',
-    backgroundColor: '#ffffff',
+    selectedColor: '#2dd4bf',
+    backgroundColor: '#fffbeb',
     borderStyle: 'black',
     list: [
       {

@@ -4,49 +4,39 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Network } from "@/network"
-import { Star, Award, Trophy, Flame, TrendingUp, Target, Heart, Sparkles, Zap, Crown, Shield, Check } from "lucide-react-taro"
+import { Star, Trophy, Heart, Shield, Flame, Crown, Medal, Sparkles, Target, Zap, Check } from "lucide-react-taro"
 
-// 等级系统
 const LEVELS = [
-  { level: 1, name: "新手储户", minDeposits: 0, icon: Star },
-  { level: 2, name: "勤奋存户", minDeposits: 10, icon: Heart },
-  { level: 3, name: "成长达人", minDeposits: 30, icon: TrendingUp },
-  { level: 4, name: "自信先锋", minDeposits: 60, icon: Target },
-  { level: 5, name: "配得感新星", minDeposits: 100, icon: Sparkles },
-  { level: 6, name: "突破行者", minDeposits: 150, icon: Zap },
-  { level: 7, name: "勇气战士", minDeposits: 210, icon: Shield },
-  { level: 8, name: "自我接纳者", minDeposits: 280, icon: Award },
-  { level: 9, name: "配得感达人", minDeposits: 360, icon: Crown },
-  { level: 10, name: "成功大师", minDeposits: 500, icon: Trophy },
+  { name: "新手储户", minCoins: 0, icon: Star },
+  { name: "见习储蓄员", minCoins: 10, icon: Star },
+  { name: "储蓄达人", minCoins: 50, icon: Medal },
+  { name: "自信存户", minCoins: 100, icon: Medal },
+  { name: "成长之星", minCoins: 200, icon: Trophy },
+  { name: "配得感探索者", minCoins: 350, icon: Trophy },
+  { name: "勇敢储户", minCoins: 500, icon: Crown },
+  { name: "成功理财师", minCoins: 750, icon: Crown },
+  { name: "配得感大师", minCoins: 1000, icon: Crown },
+  { name: "成功银行家", minCoins: 1500, icon: Crown },
 ]
 
-// 成就勋章
 const ACHIEVEMENTS = [
-  { id: "streak_7", name: "坚持一周", desc: "连续存款7天", icon: Flame, color: "bg-amber-100 text-amber-600", category: "persistence" },
-  { id: "streak_30", name: "月度之星", desc: "连续存款30天", icon: Flame, color: "bg-amber-100 text-amber-600", category: "persistence" },
-  { id: "streak_100", name: "百日传奇", desc: "连续存款100天", icon: Flame, color: "bg-amber-100 text-amber-600", category: "persistence" },
-  { id: "plan_21", name: "配得感大师", desc: "完成21天计划", icon: Crown, color: "bg-violet-100 text-violet-600", category: "growth" },
-  { id: "challenge_10", name: "挑战勇士", desc: "完成10次微恐惧挑战", icon: Shield, color: "bg-emerald-100 text-emerald-600", category: "growth" },
-  { id: "first_reject", name: "第一次说不", desc: "首次拒绝不合理请求", icon: Shield, color: "bg-rose-100 text-rose-600", category: "acceptance" },
-  { id: "first_praise", name: "接受赞美", desc: "第一次接受赞美不反驳", icon: Heart, color: "bg-sky-100 text-sky-600", category: "acceptance" },
-  { id: "deposit_50", name: "半百存户", desc: "累计存入50次成功", icon: Star, color: "bg-sky-100 text-sky-600", category: "milestone" },
-  { id: "deposit_100", name: "百次见证", desc: "累计存入100次成功", icon: Trophy, color: "bg-amber-100 text-amber-600", category: "milestone" },
-  { id: "gratitude_7", name: "感恩之心", desc: "连续7天写感恩日记", icon: Heart, color: "bg-emerald-100 text-emerald-600", category: "persistence" },
+  { id: "first_deposit", name: "第一桶金", desc: "存入第一笔成功", icon: Star, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
+  { id: "streak_7", name: "七天坚持", desc: "连续存款7天", icon: Flame, color: "bg-orange-100 border-2 border-orange-300", iconColor: "#ea580c" },
+  { id: "streak_30", name: "月度达人", desc: "连续存款30天", icon: Flame, color: "bg-red-100 border-2 border-red-300", iconColor: "#dc2626" },
+  { id: "streak_100", name: "百日传奇", desc: "连续存款100天", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
+  { id: "plan_21", name: "配得感大师", desc: "完成21天计划", icon: Trophy, color: "bg-teal-100 border-2 border-teal-300", iconColor: "#14b8a6" },
+  { id: "first_reject", name: "勇敢说不", desc: "第一次拒绝别人", icon: Shield, color: "bg-pink-100 border-2 border-pink-300", iconColor: "#db2777" },
+  { id: "accept_praise", name: "接受赞美", desc: "第一次接受赞美不反驳", icon: Heart, color: "bg-red-100 border-2 border-red-300", iconColor: "#e11d48" },
+  { id: "challenge_10", name: "挑战先锋", desc: "完成10次微恐惧挑战", icon: Target, color: "bg-emerald-100 border-2 border-emerald-300", iconColor: "#059669" },
+  { id: "coins_500", name: "半千富豪", desc: "累计500成功币", icon: Zap, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
+  { id: "coins_1000", name: "千金富翁", desc: "累计1000成功币", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
 ]
 
 export default function ProfilePage() {
-  const [stats, setStats] = useState({
-    totalDeposits: 0,
-    coins: 0,
-    streak: 0,
-    level: 1,
-    levelName: "新手储户",
-    completedTasks: 0,
-    challengesCompleted: 0,
-    gratitudeDays: 0,
-  })
+  const [totalCoins, setTotalCoins] = useState(0)
+  const [totalDeposits, setTotalDeposits] = useState(0)
+  const [streak, setStreak] = useState(0)
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState<"achievements" | "stats">("achievements")
 
   useEffect(() => {
     fetchProfileData()
@@ -58,213 +48,179 @@ export default function ProfilePage() {
         Network.request({ url: "/api/deposits/stats" }),
         Network.request({ url: "/api/achievements" }),
       ])
-      console.log("Profile stats response:", statsRes.data)
+      console.log("Stats response:", statsRes.data)
       console.log("Achievements response:", achievementsRes.data)
 
       if (statsRes.data?.data) {
-        setStats(statsRes.data.data)
+        const stats = statsRes.data.data
+        setTotalCoins(stats.total_coins || 0)
+        setTotalDeposits(stats.total_deposits || 0)
+        setStreak(stats.streak || 0)
       }
+
       if (achievementsRes.data?.data) {
-        setUnlockedAchievements(achievementsRes.data.data.map((a: any) => a.achievement_id || a.id))
+        const achs = achievementsRes.data.data
+        setUnlockedAchievements(achs.map((a: { achievement_id: string }) => a.achievement_id))
       }
     } catch (err) {
-      console.log("Fetch profile data error:", err)
+      console.log("Fetch profile error:", err)
     }
   }
 
-  const currentLevel = LEVELS.find(l => l.level === stats.level) || LEVELS[0]
-  const nextLevel = LEVELS.find(l => l.level === stats.level + 1)
+  const currentLevel = LEVELS.reduce((acc, level) => {
+    return totalCoins >= level.minCoins ? level : acc
+  }, LEVELS[0])
+
+  const currentLevelIdx = LEVELS.indexOf(currentLevel)
+  const nextLevel = LEVELS[currentLevelIdx + 1]
+  const levelProgress = nextLevel
+    ? ((totalCoins - currentLevel.minCoins) / (nextLevel.minCoins - currentLevel.minCoins)) * 100
+    : 100
+
   const LevelIcon = currentLevel.icon
 
-  const levelProgress = () => {
-    if (!nextLevel) return 100
-    const base = currentLevel.minDeposits
-    const next = nextLevel.minDeposits
-    return next > base ? Math.min(((stats.totalDeposits - base) / (next - base)) * 100, 100) : 100
-  }
-
   return (
-    <View className="min-h-full bg-gray-50 pb-20">
-      {/* 顶部个人信息 */}
-      <View className="bg-sky-500 px-4 pt-6 pb-8 rounded-b-3xl">
-        <View className="flex flex-row items-center gap-3 mb-4">
-          <View className="w-14 h-14 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-            <LevelIcon size={28} color="#fff" />
+    <View className="min-h-full bg-amber-50 pb-20">
+      {/* 等级面板 - 游戏风格 */}
+      <View className="bg-gradient-to-b from-teal-400 to-teal-500 px-4 pt-4 pb-8 rounded-b-[2rem]">
+        <View className="flex flex-col items-center">
+          <View className="w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-300 flex items-center justify-center mb-2">
+            <LevelIcon size={32} color="#ca8a04" />
           </View>
-          <View className="flex-1">
-            <Text className="block text-white text-lg font-bold">{"Lv." + stats.level + " " + stats.levelName}</Text>
-            <Text className="block text-sky-100 text-xs">{"累计 " + stats.totalDeposits + " 次成功存款"}</Text>
-          </View>
-          <View className="bg-white bg-opacity-20 rounded-full px-3 py-1">
-            <Text className="block text-white text-xs font-semibold">{stats.coins + " 成功币"}</Text>
-          </View>
+          <Text className="block text-white text-lg font-black">{currentLevel.name}</Text>
+          <Text className="block text-teal-100 text-xs font-bold mt-1">Lv.{currentLevelIdx + 1}</Text>
         </View>
+      </View>
 
-        {/* 等级进度 */}
+      <View className="px-4 -mt-4">
+        {/* 升级进度 */}
         {nextLevel && (
-          <Card className="bg-white bg-opacity-95 border-0 shadow-lg">
-            <CardContent className="p-3">
-              <View className="flex flex-row items-center justify-between mb-1">
-                <Text className="block text-xs text-gray-500">{"Lv." + stats.level + " " + currentLevel.name}</Text>
-                <Text className="block text-xs text-gray-500">{"Lv." + nextLevel.level + " " + nextLevel.name}</Text>
+          <Card className="border-2 border-yellow-300 bg-gradient-to-b from-yellow-50 to-amber-50 shadow-lg mb-4">
+            <CardContent className="p-4">
+              <View className="flex flex-row items-center justify-between mb-2">
+                <Text className="block text-xs text-stone-500 font-bold">{currentLevel.name}</Text>
+                <View className="flex flex-row items-center gap-1">
+                  <Sparkles size={12} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">{totalCoins}/{nextLevel.minCoins}</Text>
+                </View>
+                <Text className="block text-xs text-stone-500 font-bold">{nextLevel.name}</Text>
               </View>
-              <Progress value={levelProgress()} className="h-2" />
-              <Text className="block text-xs text-gray-400 mt-1 text-center">
-                {"还需 " + (nextLevel.minDeposits - stats.totalDeposits) + " 次存款升级"}
+              <Progress value={levelProgress} className="h-3" />
+              <Text className="block text-center text-xs text-yellow-600 font-bold mt-1">
+                还差 {nextLevel.minCoins - totalCoins} 成功币升级
               </Text>
             </CardContent>
           </Card>
         )}
-      </View>
 
-      {/* 数据概览 */}
-      <View className="px-4 mt-4">
-        <View className="flex flex-row gap-3">
-          <View className="flex-1">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-3 flex flex-col items-center">
-                <Flame size={20} color="#f59e0b" />
-                <Text className="block text-lg font-bold text-gray-800 mt-1">{stats.streak}</Text>
-                <Text className="block text-xs text-gray-400">连续天数</Text>
-              </CardContent>
-            </Card>
-          </View>
-          <View className="flex-1">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-3 flex flex-col items-center">
-                <Target size={20} color="#0ea5e9" />
-                <Text className="block text-lg font-bold text-gray-800 mt-1">{stats.completedTasks + "/21"}</Text>
-                <Text className="block text-xs text-gray-400">任务完成</Text>
-              </CardContent>
-            </Card>
-          </View>
-          <View className="flex-1">
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-3 flex flex-col items-center">
-                <Shield size={20} color="#10b981" />
-                <Text className="block text-lg font-bold text-gray-800 mt-1">{stats.challengesCompleted}</Text>
-                <Text className="block text-xs text-gray-400">挑战完成</Text>
-              </CardContent>
-            </Card>
-          </View>
+        {/* 数据面板 */}
+        <View className="flex flex-row gap-3 mb-4">
+          <Card className="flex-1 border-2 border-teal-200 bg-gradient-to-b from-teal-50 to-white shadow-sm">
+            <CardContent className="p-3 flex flex-col items-center">
+              <Sparkles size={18} color="#14b8a6" />
+              <Text className="block text-xl font-black text-teal-600 mt-1">{totalCoins}</Text>
+              <Text className="block text-xs text-stone-500 font-bold">成功币</Text>
+            </CardContent>
+          </Card>
+          <Card className="flex-1 border-2 border-yellow-200 bg-gradient-to-b from-yellow-50 to-white shadow-sm">
+            <CardContent className="p-3 flex flex-col items-center">
+              <Star size={18} color="#ca8a04" />
+              <Text className="block text-xl font-black text-yellow-600 mt-1">{totalDeposits}</Text>
+              <Text className="block text-xs text-stone-500 font-bold">总存款</Text>
+            </CardContent>
+          </Card>
+          <Card className="flex-1 border-2 border-orange-200 bg-gradient-to-b from-orange-50 to-white shadow-sm">
+            <CardContent className="p-3 flex flex-col items-center">
+              <Flame size={18} color="#ea580c" />
+              <Text className="block text-xl font-black text-orange-600 mt-1">{streak}</Text>
+              <Text className="block text-xs text-stone-500 font-bold">连续天数</Text>
+            </CardContent>
+          </Card>
         </View>
-      </View>
 
-      {/* Tab 切换 */}
-      <View className="px-4 mt-4">
-        <View className="flex flex-row bg-gray-100 rounded-xl p-1">
-          <View
-            className={`flex-1 py-2 rounded-lg ${activeTab === "achievements" ? "bg-white shadow-sm" : ""}`}
-            onClick={() => setActiveTab("achievements")}
-          >
-            <Text className={`block text-center text-sm font-medium ${activeTab === "achievements" ? "text-sky-600" : "text-gray-500"}`}>
-              成就勋章
-            </Text>
-          </View>
-          <View
-            className={`flex-1 py-2 rounded-lg ${activeTab === "stats" ? "bg-white shadow-sm" : ""}`}
-            onClick={() => setActiveTab("stats")}
-          >
-            <Text className={`block text-center text-sm font-medium ${activeTab === "stats" ? "text-sky-600" : "text-gray-500"}`}>
-              等级体系
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* 成就勋章 */}
-      {activeTab === "achievements" && (
-        <View className="px-4 mt-4">
-          <View className="flex flex-row items-center justify-between mb-3">
-            <Text className="block text-sm font-semibold text-gray-700">{"已解锁 " + unlockedAchievements.length + "/" + ACHIEVEMENTS.length}</Text>
-          </View>
-          <View className="flex flex-row flex-wrap gap-3">
-            {ACHIEVEMENTS.map((ach) => {
-              const isUnlocked = unlockedAchievements.includes(ach.id)
-              const AchIcon = ach.icon
-              return (
-                <View
-                  key={ach.id}
-                  className={`w-[calc(50%-6px)] rounded-2xl p-3 ${isUnlocked ? "bg-white shadow-sm" : "bg-gray-100 opacity-60"}`}
-                >
-                  <View className="flex flex-row items-center gap-2">
-                    <View className={`w-10 h-10 rounded-xl ${isUnlocked ? ach.color : "bg-gray-200"} flex items-center justify-center`}>
-                      <AchIcon size={20} color={isUnlocked ? "#0ea5e9" : "#9ca3af"} />
-                    </View>
-                    <View className="flex-1">
-                      <Text className={`block text-sm font-medium ${isUnlocked ? "text-gray-800" : "text-gray-400"}`}>
-                        {ach.name}
-                      </Text>
-                      <Text className="block text-xs text-gray-400">{ach.desc}</Text>
-                    </View>
-                    {isUnlocked && (
-                      <Check size={16} color="#10b981" />
+        {/* 成就勋章 */}
+        <Text className="block text-base font-black text-stone-800 mb-3">成就勋章</Text>
+        <View className="flex flex-row flex-wrap gap-3">
+          {ACHIEVEMENTS.map((ach) => {
+            const unlocked = unlockedAchievements.includes(ach.id)
+            const AchIcon = ach.icon
+            return (
+              <Card
+                key={ach.id}
+                className={`w-[calc(50%-6px)] border-2 shadow-sm ${
+                  unlocked
+                    ? ach.color
+                    : "bg-stone-50 border-stone-200 opacity-40"
+                }`}
+              >
+                <CardContent className="p-3 flex flex-row items-center gap-2">
+                  <View className={`w-10 h-10 rounded-xl flex items-center justify-center ${unlocked ? ach.color : "bg-stone-100 border-2 border-stone-200"}`}>
+                    {unlocked ? (
+                      <AchIcon size={20} color={ach.iconColor} />
+                    ) : (
+                      <AchIcon size={20} color="#a8a29e" />
                     )}
                   </View>
-                </View>
-              )
-            })}
-          </View>
+                  <View className="flex-1">
+                    <Text className={`block text-xs font-black ${unlocked ? "text-stone-800" : "text-stone-400"}`}>
+                      {ach.name}
+                    </Text>
+                    <Text className="block text-xs text-stone-400 font-bold">{ach.desc}</Text>
+                    {unlocked && (
+                      <View className="flex flex-row items-center gap-1 mt-1">
+                        <Check size={10} color="#14b8a6" />
+                        <Text className="block text-xs text-teal-600 font-bold">已解锁</Text>
+                      </View>
+                    )}
+                  </View>
+                </CardContent>
+              </Card>
+            )
+          })}
         </View>
-      )}
 
-      {/* 等级体系 */}
-      {activeTab === "stats" && (
-        <View className="px-4 mt-4">
-          <View className="flex flex-col gap-2">
-            {LEVELS.map((lv) => {
-              const isCurrent = lv.level === stats.level
-              const isUnlocked = stats.totalDeposits >= lv.minDeposits
-              const LvIcon = lv.icon
-              return (
-                <Card
-                  key={lv.level}
-                  className={`border-0 shadow-sm ${isCurrent ? "border-l-4 border-l-sky-500" : ""}`}
-                >
-                  <CardContent className="p-3">
-                    <View className="flex flex-row items-center gap-3">
-                      <View className={`w-10 h-10 rounded-xl ${
-                        isUnlocked ? "bg-sky-100" : "bg-gray-100"
-                      } flex items-center justify-center`}
-                      >
-                        <LvIcon size={20} color={isUnlocked ? "#0ea5e9" : "#9ca3af"} />
-                      </View>
-                      <View className="flex-1">
-                        <View className="flex flex-row items-center gap-2">
-                          <Text className="block text-sm font-semibold text-gray-700">
-                            {"Lv." + lv.level + " " + lv.name}
-                          </Text>
-                          {isCurrent && (
-                            <Badge variant="default">
-                              <Text className="block text-xs">当前</Text>
-                            </Badge>
-                          )}
-                        </View>
-                        <Text className="block text-xs text-gray-400">{"需要 " + lv.minDeposits + " 次成功存款"}</Text>
-                      </View>
-                      {isUnlocked ? (
-                        <Check size={16} color="#10b981" />
-                      ) : (
-                        <Sparkles size={16} color="#cbd5e1" />
+        {/* 等级一览 */}
+        <Text className="block text-base font-black text-stone-800 mb-3 mt-4">等级一览</Text>
+        <View className="flex flex-col gap-2 mb-4">
+          {LEVELS.map((level, idx) => {
+            const isCurrent = idx === currentLevelIdx
+            const isReached = totalCoins >= level.minCoins
+            const LevelIc = level.icon
+            return (
+              <Card
+                key={idx}
+                className={`border-2 shadow-sm ${
+                  isCurrent
+                    ? "border-teal-300 bg-gradient-to-b from-teal-50 to-white"
+                    : isReached
+                    ? "border-emerald-200 bg-emerald-50"
+                    : "border-stone-200 bg-stone-50 opacity-50"
+                }`}
+              >
+                <CardContent className="p-3 flex flex-row items-center gap-3">
+                  <View className={`w-9 h-9 rounded-lg flex items-center justify-center ${isCurrent ? "bg-teal-100 border-2 border-teal-300" : isReached ? "bg-emerald-100 border-2 border-emerald-300" : "bg-stone-100 border-2 border-stone-200"}`}>
+                    <LevelIc size={18} color={isReached ? "#14b8a6" : "#a8a29e"} />
+                  </View>
+                  <View className="flex-1">
+                    <View className="flex flex-row items-center gap-2">
+                      <Text className={`block text-sm font-black ${isCurrent ? "text-teal-600" : isReached ? "text-emerald-600" : "text-stone-400"}`}>
+                        Lv.{idx + 1} {level.name}
+                      </Text>
+                      {isCurrent && (
+                        <Badge className="bg-teal-400 text-white text-xs font-bold">
+                          <Text className="block text-xs font-bold">当前</Text>
+                        </Badge>
                       )}
                     </View>
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </View>
+                    <Text className="block text-xs text-stone-400 font-bold">
+                      {idx === 0 ? "起始等级" : level.minCoins + " 成功币解锁"}
+                    </Text>
+                  </View>
+                </CardContent>
+              </Card>
+            )
+          })}
         </View>
-      )}
-
-      {/* 底部鼓励 */}
-      <View className="px-4 mt-4 mb-4">
-        <Card className="border-0 shadow-sm bg-amber-50">
-          <CardContent className="p-3">
-            <Text className="block text-amber-700 text-xs text-center">
-              每一次存款都是对自己的认可，你的成长值得被看见。
-            </Text>
-          </CardContent>
-        </Card>
       </View>
     </View>
   )
