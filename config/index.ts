@@ -23,6 +23,7 @@ const generateTTProjectConfig = (outputRoot: string) => {
       postcss: false,
       minified: false,
     },
+    packOptions: { ignore: [{ type: 'folder', value: './assets' }] },
   };
   const outputDir = path.resolve(__dirname, '..', outputRoot);
   if (!fs.existsSync(outputDir)) {
@@ -32,6 +33,28 @@ const generateTTProjectConfig = (outputRoot: string) => {
     path.resolve(outputDir, 'project.config.json'),
     JSON.stringify(config, null, 2),
   );
+
+  // 修复抖音小程序 tabBar iconPath：移除 "./" 前缀
+  const appJsonPath = path.resolve(outputDir, 'app.json');
+  if (fs.existsSync(appJsonPath)) {
+    try {
+      const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf-8'));
+      if (appJson.tabBar?.list) {
+        appJson.tabBar.list = appJson.tabBar.list.map((item: Record<string, string>) => {
+          const fixed: Record<string, string> = {};
+          for (const [key, value] of Object.entries(item)) {
+            fixed[key] = typeof value === 'string' && value.startsWith('./')
+              ? value.replace(/^\.\//, '')
+              : value;
+          }
+          return fixed;
+        });
+        fs.writeFileSync(appJsonPath, JSON.stringify(appJson, null, 2));
+      }
+    } catch {
+      // app.json 可能尚不存在，跳过
+    }
+  }
 };
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数

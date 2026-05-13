@@ -3,11 +3,11 @@ import Taro from '@tarojs/taro';
 /**
  * 小程序调试工具
  * 在开发版/体验版自动开启调试模式
- * 支持微信小程序
+ * 支持微信小程序和抖音小程序
  */
 export function devDebug() {
   const env = Taro.getEnv();
-  if (env === Taro.ENV_TYPE.WEAPP) {
+  if (env === Taro.ENV_TYPE.WEAPP || env === Taro.ENV_TYPE.TT) {
     try {
       const accountInfo = Taro.getAccountInfoSync();
       const envVersion = accountInfo.miniProgram.envVersion;
