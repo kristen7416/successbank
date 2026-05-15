@@ -51,6 +51,7 @@ const CATEGORY_STYLES: Record<string, { color: string; label: string }> = {
 export default function TasksPage() {
   const [completedDays, setCompletedDays] = useState<number[]>([])
   const [currentDay, setCurrentDay] = useState(1)
+  const [todayCompleted, setTodayCompleted] = useState(false)
   const [expandedDay, setExpandedDay] = useState<number | null>(null)
   const [completing, setCompleting] = useState(false)
 
@@ -66,6 +67,7 @@ export default function TasksPage() {
         const data = res.data.data
         setCompletedDays(data.completed_days || [])
         setCurrentDay(data.current_day || 1)
+        setTodayCompleted(data.today_completed || false)
       }
     } catch (err) {
       console.log("Fetch task data error:", err)
@@ -74,6 +76,7 @@ export default function TasksPage() {
   }
 
   const handleCompleteTask = async (day: number) => {
+    if (todayCompleted) return
     setCompleting(true)
     try {
       const res = await Network.request({
@@ -82,13 +85,18 @@ export default function TasksPage() {
         data: { day },
       })
       console.log("Complete task response:", res.data)
-      setCompletedDays([...completedDays, day])
-      if (day === currentDay && currentDay < 21) {
-        setCurrentDay(currentDay + 1)
+      const result = res.data?.data
+      if (result?.already_completed_today) {
+        setTodayCompleted(true)
+      } else if (!result?.already_completed) {
+        setCompletedDays([...completedDays, day])
+        setTodayCompleted(true)
+        if (day === currentDay && currentDay < 21) {
+          setCurrentDay(currentDay + 1)
+        }
       }
     } catch (err) {
       console.log("Complete task error:", err)
-      setCompletedDays([...completedDays, day])
     } finally {
       setCompleting(false)
     }
@@ -131,12 +139,12 @@ export default function TasksPage() {
                     <Badge className={`${catStyle.color} font-bold`}>
                       <Text className="block text-xs font-bold">今日任务 · Day {currentDay}</Text>
                     </Badge>
-                    {isCompleted && (
+                    {todayCompleted && (
                       <View className="flex flex-row items-center gap-1">
                         <View className="w-5 h-5 rounded-full bg-emerald-400 flex items-center justify-center">
                           <Check size={10} color="#fff" />
                         </View>
-                        <Text className="block text-emerald-600 text-xs font-bold">已完成</Text>
+                        <Text className="block text-emerald-600 text-xs font-bold">今日已打卡</Text>
                       </View>
                     )}
                   </View>
@@ -146,12 +154,17 @@ export default function TasksPage() {
                     <Badge className={catStyle.color}>
                       <Text className="block text-xs font-bold">{catStyle.label}</Text>
                     </Badge>
-                    {!isCompleted && (
+                    {!todayCompleted && !isCompleted && (
                       <Button size="sm" className="bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" disabled={completing} onClick={() => handleCompleteTask(currentDay)}>
                         <Text className="block text-sm text-white">
                           {completing ? "打卡中..." : "完成打卡"}
                         </Text>
                       </Button>
+                    )}
+                    {todayCompleted && !isCompleted && (
+                      <View className="bg-stone-100 border-2 border-stone-200 rounded-xl px-3 py-1">
+                        <Text className="block text-stone-400 text-xs font-bold">明天继续</Text>
+                      </View>
                     )}
                   </View>
                 </View>
@@ -212,7 +225,7 @@ export default function TasksPage() {
                   {isExpanded && (
                     <View className="mt-2 ml-9">
                       <Text className="block text-xs text-stone-500 leading-relaxed">{task.desc}</Text>
-                      {!isCompleted && !isLocked && (
+                      {!isCompleted && !isLocked && !todayCompleted && (
                         <Button size="sm" className="mt-2 bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" onClick={(e) => {
                           e.stopPropagation()
                           handleCompleteTask(task.day)
@@ -220,6 +233,11 @@ export default function TasksPage() {
                         >
                           <Text className="block text-xs text-white">完成打卡</Text>
                         </Button>
+                      )}
+                      {!isCompleted && !isLocked && todayCompleted && (
+                        <View className="mt-2 bg-stone-100 border-2 border-stone-200 rounded-xl px-3 py-1 inline-block">
+                          <Text className="block text-stone-400 text-xs font-bold">今日已打卡，明天继续</Text>
+                        </View>
                       )}
                     </View>
                   )}

@@ -58,7 +58,7 @@ export class TasksService {
 
     const { data: completions, error } = await client
       .from('task_completions')
-      .select('day')
+      .select('day, created_at')
       .order('day', { ascending: true });
 
     if (error) throw new Error(`获取任务进度失败: ${error.message}`);
@@ -68,18 +68,29 @@ export class TasksService {
       ? Math.min(Math.max(...completedDays) + 1, 21)
       : 1;
 
+    // Check if already completed a task today
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
+    const todayCompleted = (completions || []).some((c: any) => {
+      const createdAt = new Date(c.created_at).toISOString();
+      return createdAt >= todayStart && createdAt < todayEnd;
+    });
+
     return {
       completed_days: completedDays,
       current_day: currentDay,
       total: 21,
+      today_completed: todayCompleted,
     };
   }
 
-  // 完成任务打卡
+  // 完成任务打卡（每天限一次）
   async completeTask(day: number, feeling?: string) {
     const client = getSupabaseClient();
 
-    // Check if already completed
+    // Check if already completed this day
     const { data: existing, error: checkError } = await client
       .from('task_completions')
       .select('id')
@@ -89,7 +100,24 @@ export class TasksService {
     if (checkError) throw new Error(`检查任务完成状态失败: ${checkError.message}`);
 
     if (existing) {
-      return { already_completed: true, day };
+      return { already_completed: true, day, message: '该任务已完成' };
+    }
+
+    // Check if already completed a task today (one per real-world day)
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+
+    const { data: todayCompletions, error: todayError } = await client
+      .from('task_completions')
+      .select('id, day')
+      .gte('created_at', todayStart)
+      .lt('created_at', todayEnd);
+
+    if (todayError) throw new Error(`检查今日打卡状态失败: ${todayError.message}`);
+
+    if (todayCompletions && todayCompletions.length > 0) {
+      return { already_completed_today: true, day: todayCompletions[0].day, message: '今日已打卡，明天继续加油' };
     }
 
     const { data, error } = await client
