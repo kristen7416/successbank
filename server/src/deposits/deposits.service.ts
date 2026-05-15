@@ -74,12 +74,13 @@ export class DepositsService {
     // 连续存款天数
     const streak = await this.calculateStreak();
 
-    // 计算等级
-    const level = this.calculateLevel(totalCount || 0);
+    // 计算等级（基于成功币）
+    const level = this.calculateLevel(totalCoins);
 
     return {
       totalDeposits: totalCount || 0,
-      coins: totalCoins,
+      total_coins: totalCoins,
+      total_deposits: totalCount || 0,
       streak,
       level: level.level,
       levelName: level.name,
@@ -126,23 +127,23 @@ export class DepositsService {
     return streak;
   }
 
-  private calculateLevel(totalDeposits: number): { level: number; name: string } {
+  private calculateLevel(totalCoins: number): { level: number; name: string } {
     const levels = [
       { level: 1, name: '新手储户', min: 0 },
-      { level: 2, name: '勤奋存户', min: 10 },
-      { level: 3, name: '成长达人', min: 30 },
-      { level: 4, name: '自信先锋', min: 60 },
-      { level: 5, name: '配得感新星', min: 100 },
-      { level: 6, name: '突破行者', min: 150 },
-      { level: 7, name: '勇气战士', min: 210 },
-      { level: 8, name: '自我接纳者', min: 280 },
-      { level: 9, name: '配得感达人', min: 360 },
-      { level: 10, name: '成功大师', min: 500 },
+      { level: 2, name: '见习储蓄员', min: 5 },
+      { level: 3, name: '储蓄达人', min: 10 },
+      { level: 4, name: '自信存户', min: 16 },
+      { level: 5, name: '成长之星', min: 23 },
+      { level: 6, name: '配得感探索者', min: 31 },
+      { level: 7, name: '勇敢储户', min: 40 },
+      { level: 8, name: '成功理财师', min: 50 },
+      { level: 9, name: '配得感大师', min: 60 },
+      { level: 10, name: '成功银行家', min: 70 },
     ];
 
     let result = levels[0];
     for (const lv of levels) {
-      if (totalDeposits >= lv.min) {
+      if (totalCoins >= lv.min) {
         result = lv;
       }
     }

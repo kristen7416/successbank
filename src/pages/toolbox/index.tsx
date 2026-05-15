@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Network } from "@/network"
-import { Heart, Star, Sparkles, BookOpen, Shield, Sun, PenLine, RefreshCw, Check, ArrowLeft, Zap } from "lucide-react-taro"
+import { Heart, Star, BookOpen, Shield, Sun, PenLine, RefreshCw, Check, ArrowLeft, Zap } from "lucide-react-taro"
 
 const AFFIRMATIONS = [
   "我值得被爱和被尊重",
@@ -120,7 +120,10 @@ export default function ToolboxPage() {
                   <Text className="block text-sm font-black text-stone-800">每日自我肯定</Text>
                   <Text className="block text-xs text-stone-500 font-bold">用肯定语句重塑内在信念</Text>
                 </View>
-                <Sparkles size={16} color="#14b8a6" />
+                <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                  <Zap size={10} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">+1</Text>
+                </View>
               </CardContent>
             </Card>
 
@@ -134,7 +137,10 @@ export default function ToolboxPage() {
                   <Text className="block text-sm font-black text-stone-800">感恩日记</Text>
                   <Text className="block text-xs text-stone-500 font-bold">记录3件值得感恩的小事</Text>
                 </View>
-                <Sparkles size={16} color="#ca8a04" />
+                <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                  <Zap size={10} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">+2</Text>
+                </View>
               </CardContent>
             </Card>
 
@@ -148,7 +154,10 @@ export default function ToolboxPage() {
                   <Text className="block text-sm font-black text-stone-800">价值条件化地图</Text>
                   <Text className="block text-xs text-stone-500 font-bold">识别和重写你的价值条件</Text>
                 </View>
-                <Sparkles size={16} color="#9333ea" />
+                <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                  <Zap size={10} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">+2</Text>
+                </View>
               </CardContent>
             </Card>
 
@@ -160,9 +169,12 @@ export default function ToolboxPage() {
                 </View>
                 <View className="flex-1">
                   <Text className="block text-sm font-black text-stone-800">微恐惧挑战</Text>
-                  <Text className="block text-xs text-stone-500 font-bold">走出舒适区，赢取额外成功币</Text>
+                  <Text className="block text-xs text-stone-500 font-bold">走出舒适区，赢取3-5成功币</Text>
                 </View>
-                <Sparkles size={16} color="#059669" />
+                <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                  <Zap size={10} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">3~5</Text>
+                </View>
               </CardContent>
             </Card>
           </View>
@@ -398,14 +410,14 @@ export default function ToolboxPage() {
   // 微恐惧挑战
   if (activeTool === "fear-challenge") {
     const CHALLENGES = [
-      { title: "主动和一个陌生人打招呼", coins: 3 },
-      { title: "在餐厅主动点一道没吃过的菜", coins: 2 },
-      { title: "在群里发一条自己的观点", coins: 3 },
-      { title: "向一个人表达感谢", coins: 2 },
-      { title: "拒绝一个让你不舒服的请求", coins: 5 },
-      { title: "穿一件你一直想穿但不敢的衣服", coins: 3 },
-      { title: "主动约一个朋友出来", coins: 3 },
-      { title: "在社交媒体分享一段真实的感受", coins: 4 },
+      { title: "主动和一个陌生人打招呼", coins: 3, difficulty: "medium" },
+      { title: "在餐厅主动点一道没吃过的菜", coins: 3, difficulty: "medium" },
+      { title: "在群里发一条自己的观点", coins: 3, difficulty: "medium" },
+      { title: "向一个人表达感谢", coins: 3, difficulty: "medium" },
+      { title: "拒绝一个让你不舒服的请求", coins: 5, difficulty: "hard" },
+      { title: "穿一件你一直想穿但不敢的衣服", coins: 3, difficulty: "medium" },
+      { title: "主动约一个朋友出来", coins: 3, difficulty: "medium" },
+      { title: "在社交媒体分享一段真实的感受", coins: 5, difficulty: "hard" },
     ]
     const todayChallenge = CHALLENGES[new Date().getDate() % CHALLENGES.length]
 
@@ -460,7 +472,7 @@ export default function ToolboxPage() {
                         data: {
                           content: "完成微恐惧挑战：" + todayChallenge.title,
                           emotion: "突破",
-                          difficulty: "medium",
+                          difficulty: todayChallenge.difficulty,
                           coins: todayChallenge.coins,
                           type: "challenge",
                         },

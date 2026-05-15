@@ -8,15 +8,15 @@ import { Star, Trophy, Heart, Shield, Flame, Crown, Medal, Sparkles, Target, Zap
 
 const LEVELS = [
   { name: "新手储户", minCoins: 0, icon: Star },
-  { name: "见习储蓄员", minCoins: 10, icon: Star },
-  { name: "储蓄达人", minCoins: 50, icon: Medal },
-  { name: "自信存户", minCoins: 100, icon: Medal },
-  { name: "成长之星", minCoins: 200, icon: Trophy },
-  { name: "配得感探索者", minCoins: 350, icon: Trophy },
-  { name: "勇敢储户", minCoins: 500, icon: Crown },
-  { name: "成功理财师", minCoins: 750, icon: Crown },
-  { name: "配得感大师", minCoins: 1000, icon: Crown },
-  { name: "成功银行家", minCoins: 1500, icon: Crown },
+  { name: "见习储蓄员", minCoins: 5, icon: Star },
+  { name: "储蓄达人", minCoins: 10, icon: Medal },
+  { name: "自信存户", minCoins: 16, icon: Medal },
+  { name: "成长之星", minCoins: 23, icon: Trophy },
+  { name: "配得感探索者", minCoins: 31, icon: Trophy },
+  { name: "勇敢储户", minCoins: 40, icon: Crown },
+  { name: "成功理财师", minCoins: 50, icon: Crown },
+  { name: "配得感大师", minCoins: 60, icon: Crown },
+  { name: "成功银行家", minCoins: 70, icon: Crown },
 ]
 
 const ACHIEVEMENTS = [
@@ -28,8 +28,8 @@ const ACHIEVEMENTS = [
   { id: "first_reject", name: "勇敢说不", desc: "第一次拒绝别人", icon: Shield, color: "bg-pink-100 border-2 border-pink-300", iconColor: "#db2777" },
   { id: "accept_praise", name: "接受赞美", desc: "第一次接受赞美不反驳", icon: Heart, color: "bg-red-100 border-2 border-red-300", iconColor: "#e11d48" },
   { id: "challenge_10", name: "挑战先锋", desc: "完成10次微恐惧挑战", icon: Target, color: "bg-emerald-100 border-2 border-emerald-300", iconColor: "#059669" },
-  { id: "coins_500", name: "半千富豪", desc: "累计500成功币", icon: Zap, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
-  { id: "coins_1000", name: "千金富翁", desc: "累计1000成功币", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
+  { id: "coins_50", name: "半百富豪", desc: "累计50成功币", icon: Zap, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
+  { id: "coins_70", name: "满级传奇", desc: "累计70成功币（满级）", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
 ]
 
 export default function ProfilePage() {

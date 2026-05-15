@@ -173,12 +173,18 @@ export default function IndexPage() {
                 </Badge>
               </View>
               <Text className="block text-sm text-stone-600 font-bold mb-2">{todayTask.title}</Text>
-              <View
-                className="flex flex-row items-center justify-end"
-                onClick={() => Taro.switchTab({ url: "/pages/tasks/index" })}
-              >
-                <Text className="block text-purple-600 text-xs font-bold">查看详情</Text>
-                <ArrowRight size={12} color="#9333ea" />
+              <View className="flex flex-row items-center justify-between">
+                <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                  <Zap size={10} color="#ca8a04" />
+                  <Text className="block text-yellow-700 text-xs font-black">+3 成功币</Text>
+                </View>
+                <View
+                  className="flex flex-row items-center justify-end"
+                  onClick={() => Taro.switchTab({ url: "/pages/tasks/index" })}
+                >
+                  <Text className="block text-purple-600 text-xs font-bold">查看详情</Text>
+                  <ArrowRight size={12} color="#9333ea" />
+                </View>
               </View>
             </CardContent>
           </Card>

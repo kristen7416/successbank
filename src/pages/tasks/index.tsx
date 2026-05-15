@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Network } from "@/network"
-import { Lock, Check, Trophy } from "lucide-react-taro"
+import { Lock, Check, Trophy, Zap } from "lucide-react-taro"
 
 const TASKS_21 = [
   { day: 1, title: "对自己说我值得", desc: "站在镜子前，看着自己的眼睛，认真地说三遍：我值得所有美好。", category: "self-affirmation" },
@@ -226,13 +226,19 @@ export default function TasksPage() {
                     <View className="mt-2 ml-9">
                       <Text className="block text-xs text-stone-500 leading-relaxed">{task.desc}</Text>
                       {!isCompleted && !isLocked && !todayCompleted && (
-                        <Button size="sm" className="mt-2 bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" onClick={(e) => {
-                          e.stopPropagation()
-                          handleCompleteTask(task.day)
-                        }}
-                        >
-                          <Text className="block text-xs text-white">完成打卡</Text>
-                        </Button>
+                        <View className="flex flex-row items-center gap-2 mt-2">
+                          <Button size="sm" className="bg-teal-400 border-2 border-teal-500 rounded-xl font-bold" onClick={(e) => {
+                            e.stopPropagation()
+                            handleCompleteTask(task.day)
+                          }}
+                          >
+                            <Text className="block text-xs text-white">完成打卡</Text>
+                          </Button>
+                          <View className="flex flex-row items-center gap-1 rounded-full bg-yellow-100 border border-yellow-300 px-2 py-1">
+                            <Zap size={10} color="#ca8a04" />
+                            <Text className="block text-yellow-700 text-xs font-black">+3</Text>
+                          </View>
+                        </View>
                       )}
                       {!isCompleted && !isLocked && todayCompleted && (
                         <View className="mt-2 bg-stone-100 border-2 border-stone-200 rounded-xl px-3 py-1 inline-block">
@@ -255,7 +261,7 @@ export default function TasksPage() {
             <View className="flex flex-row items-center justify-center gap-2">
               <Trophy size={16} color="#ca8a04" />
               <Text className="block text-yellow-700 text-xs font-bold">
-                完成21天计划，获得配得感大师勋章和100成功币奖励！
+                完成21天计划，获得配得感大师勋章和100成功币奖励！每日打卡+3成功币
               </Text>
             </View>
           </CardContent>

@@ -127,6 +127,20 @@ export class TasksService {
 
     if (error) throw new Error(`完成任务失败: ${error.message}`);
 
+    // 每次完成任务奖励3成功币，存入success_deposits
+    const taskInfo = TASKS_21.find(t => t.day === day);
+    const bonusCoins = day === 21 ? 100 : 3; // 完成21天计划额外奖励100成功币
+    await client
+      .from('success_deposits')
+      .insert({
+        content: `完成第${day}天任务：${taskInfo?.title || '21天计划'}`,
+        type: 'task',
+        emotion: '自豪',
+        difficulty: 'medium',
+        coins: bonusCoins,
+        note: day === 21 ? '完成21天配得感提升计划！' : null,
+      });
+
     return data?.[0] || null;
   }
 }
