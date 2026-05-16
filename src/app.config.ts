@@ -4,7 +4,8 @@ export default defineAppConfig({
     'pages/deposit/index',
     'pages/tasks/index',
     'pages/toolbox/index',
-    'pages/profile/index'
+    'pages/profile/index',
+    'pages/garden/index'
   ],
   window: {
     backgroundTextStyle: 'light',

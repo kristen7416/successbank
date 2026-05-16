@@ -1,9 +1,13 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { DepositsService } from './deposits.service';
+import { AchievementsService } from '@/achievements/achievements.service';
 
 @Controller('deposits')
 export class DepositsController {
-  constructor(private readonly depositsService: DepositsService) {}
+  constructor(
+    private readonly depositsService: DepositsService,
+    private readonly achievementsService: AchievementsService,
+  ) {}
 
   // 创建成功存款
   @Post()
@@ -17,6 +21,8 @@ export class DepositsController {
   }) {
     console.log('[DepositsController] POST /api/deposits', body);
     const result = await this.depositsService.createDeposit(body);
+    // 异步检查成就解锁 + 树木成长
+    this.achievementsService.checkAndUnlockAll().catch(() => {});
     return { code: 200, msg: 'success', data: result };
   }
 

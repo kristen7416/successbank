@@ -4,7 +4,7 @@ import Taro from "@tarojs/taro"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Network } from "@/network"
-import { Star, Sparkles, Heart, Flame, Coins, Plus, ArrowRight, Sun, Coffee, Hand, Check, Zap } from "lucide-react-taro"
+import { Star, Sparkles, Heart, Flame, Coins, Plus, ArrowRight, Sun, Coffee, Hand, Check, Zap, TreePine } from "lucide-react-taro"
 
 const QUICK_DEPOSITS = [
   { label: "按时起床", icon: Sun, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04", textColor: "text-yellow-700" },
@@ -189,6 +189,30 @@ export default function IndexPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* 成功花园入口 */}
+        <Card className="border-2 border-green-300 bg-gradient-to-b from-green-50 to-amber-50 shadow-md mb-4">
+          <CardContent className="p-4">
+            <View
+              style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+              onClick={() => Taro.navigateTo({ url: "/pages/garden/index" })}
+            >
+              <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <View className="w-10 h-10 rounded-xl bg-green-100 border-2 border-green-300 flex items-center justify-center">
+                  <TreePine size={20} color="#16a34a" />
+                </View>
+                <View style={{ marginLeft: "10px" }}>
+                  <Text className="block text-sm font-black text-stone-800">成功花园</Text>
+                  <Text className="block text-xs text-stone-500 font-bold">你的成功币在滋养一棵生命之树</Text>
+                </View>
+              </View>
+              <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: "28px", marginRight: "4px" }}>🌳</Text>
+                <ArrowRight size={16} color="#16a34a" />
+              </View>
+            </View>
+          </CardContent>
+        </Card>
 
         {/* 快速存款 */}
         <Text className="block text-base font-black text-stone-800 mb-2">快速存款</Text>

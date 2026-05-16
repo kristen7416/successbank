@@ -94,3 +94,17 @@ export const valueConditions = pgTable(
 		index("value_conditions_created_at_idx").on(table.created_at),
 	]
 );
+
+// 树木状态（单行表，每个用户一棵树）
+export const treeState = pgTable(
+	"tree_state",
+	{
+		id: serial().primaryKey(),
+		growth_level: integer("growth_level").notNull().default(0), // 0-6 对应种子→参天大树
+		total_coins_at_growth: integer("total_coins_at_growth").notNull().default(0), // 上次生长时的成功币
+		has_bug: integer("has_bug").notNull().default(0), // 0=无虫 1=有虫
+		last_fertilized_at: timestamp("last_fertilized_at", { withTimezone: true }),
+		created_at: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+	}
+);

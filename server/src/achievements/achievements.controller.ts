@@ -5,7 +5,7 @@ import { AchievementsService } from './achievements.service';
 export class AchievementsController {
   constructor(private readonly achievementsService: AchievementsService) {}
 
-  // 获取用户成就列表
+  // 获取所有成就（含定义+解锁状态）
   @Get()
   async getAchievements() {
     console.log('[AchievementsController] GET /api/achievements');
@@ -13,7 +13,15 @@ export class AchievementsController {
     return { code: 200, msg: 'success', data: achievements };
   }
 
-  // 解锁成就
+  // 自动检测并解锁应得成就
+  @Post('check')
+  async checkAndUnlock() {
+    console.log('[AchievementsController] POST /api/achievements/check');
+    const result = await this.achievementsService.checkAndUnlockAll();
+    return { code: 200, msg: 'success', data: result };
+  }
+
+  // 手动解锁单个成就
   @Post()
   async unlockAchievement(@Body() body: { achievement_id: string }) {
     console.log('[AchievementsController] POST /api/achievements', body);

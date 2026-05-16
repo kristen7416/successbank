@@ -141,6 +141,20 @@ export class TasksService {
         note: day === 21 ? '完成21天配得感提升计划！' : null,
       });
 
+    // 完成任务后自动除虫
+    const { data: treeData } = await client
+      .from('tree_state')
+      .select('id, has_bug')
+      .limit(1)
+      .maybeSingle();
+
+    if (treeData && treeData.has_bug === 1) {
+      await client
+        .from('tree_state')
+        .update({ has_bug: 0, updated_at: new Date().toISOString() })
+        .eq('id', treeData.id);
+    }
+
     return data?.[0] || null;
   }
 }

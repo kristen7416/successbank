@@ -1,10 +1,11 @@
 import { View, Text } from "@tarojs/components"
 import { useState, useEffect } from "react"
+import Taro from "@tarojs/taro"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Network } from "@/network"
-import { Star, Trophy, Heart, Shield, Flame, Crown, Medal, Sparkles, Target, Zap, Check } from "lucide-react-taro"
+import { Star, Trophy, Flame, Crown, Medal, Sparkles, Check, TreePine, ArrowRight } from "lucide-react-taro"
 
 const LEVELS = [
   { name: "新手储户", minCoins: 0, icon: Star },
@@ -19,24 +20,33 @@ const LEVELS = [
   { name: "成功银行家", minCoins: 70, icon: Crown },
 ]
 
-const ACHIEVEMENTS = [
-  { id: "first_deposit", name: "第一桶金", desc: "存入第一笔成功", icon: Star, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
-  { id: "streak_7", name: "七天坚持", desc: "连续存款7天", icon: Flame, color: "bg-orange-100 border-2 border-orange-300", iconColor: "#ea580c" },
-  { id: "streak_30", name: "月度达人", desc: "连续存款30天", icon: Flame, color: "bg-red-100 border-2 border-red-300", iconColor: "#dc2626" },
-  { id: "streak_100", name: "百日传奇", desc: "连续存款100天", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
-  { id: "plan_21", name: "配得感大师", desc: "完成21天计划", icon: Trophy, color: "bg-teal-100 border-2 border-teal-300", iconColor: "#14b8a6" },
-  { id: "first_reject", name: "勇敢说不", desc: "第一次拒绝别人", icon: Shield, color: "bg-pink-100 border-2 border-pink-300", iconColor: "#db2777" },
-  { id: "accept_praise", name: "接受赞美", desc: "第一次接受赞美不反驳", icon: Heart, color: "bg-red-100 border-2 border-red-300", iconColor: "#e11d48" },
-  { id: "challenge_10", name: "挑战先锋", desc: "完成10次微恐惧挑战", icon: Target, color: "bg-emerald-100 border-2 border-emerald-300", iconColor: "#059669" },
-  { id: "coins_50", name: "半百富豪", desc: "累计50成功币", icon: Zap, color: "bg-yellow-100 border-2 border-yellow-300", iconColor: "#ca8a04" },
-  { id: "coins_70", name: "满级传奇", desc: "累计70成功币（满级）", icon: Crown, color: "bg-purple-100 border-2 border-purple-300", iconColor: "#9333ea" },
-]
+const CATEGORY_META = {
+  deposit: { name: "存款达人", color: "bg-yellow-100 border-2 border-yellow-300", textColor: "text-yellow-700" },
+  streak: { name: "坚持之星", color: "bg-orange-100 border-2 border-orange-300", textColor: "text-orange-700" },
+  coins: { name: "财富积累", color: "bg-amber-100 border-2 border-amber-300", textColor: "text-amber-700" },
+  task: { name: "任务冒险", color: "bg-purple-100 border-2 border-purple-300", textColor: "text-purple-700" },
+  toolbox: { name: "工具专家", color: "bg-teal-100 border-2 border-teal-300", textColor: "text-teal-700" },
+  tree: { name: "花园守护", color: "bg-green-100 border-2 border-green-300", textColor: "text-green-700" },
+}
+
+interface Achievement {
+  id: string
+  name: string
+  desc: string
+  category: string
+  icon: string
+  threshold: number
+  field: string
+  unlocked: boolean
+  unlocked_at: string | null
+  current_value?: number
+}
 
 export default function ProfilePage() {
   const [totalCoins, setTotalCoins] = useState(0)
   const [totalDeposits, setTotalDeposits] = useState(0)
   const [streak, setStreak] = useState(0)
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([])
+  const [achievements, setAchievements] = useState<Achievement[]>([])
 
   useEffect(() => {
     fetchProfileData()
@@ -59,8 +69,7 @@ export default function ProfilePage() {
       }
 
       if (achievementsRes.data?.data) {
-        const achs = achievementsRes.data.data
-        setUnlockedAchievements(achs.map((a: { achievement_id: string }) => a.achievement_id))
+        setAchievements(achievementsRes.data.data)
       }
     } catch (err) {
       console.log("Fetch profile error:", err)
@@ -78,10 +87,19 @@ export default function ProfilePage() {
     : 100
 
   const LevelIcon = currentLevel.icon
+  const unlockedCount = achievements.filter(a => a.unlocked).length
+  const totalCount = achievements.length
+
+  // Group achievements by category
+  const groupedAchievements = achievements.reduce((acc, ach) => {
+    if (!acc[ach.category]) acc[ach.category] = []
+    acc[ach.category].push(ach)
+    return acc
+  }, {} as Record<string, Achievement[]>)
 
   return (
     <View className="min-h-full bg-amber-50 pb-20">
-      {/* 等级面板 - 游戏风格 */}
+      {/* 等级面板 */}
       <View className="bg-gradient-to-b from-teal-400 to-teal-500 px-4 pt-4 pb-8 rounded-b-[2rem]">
         <View className="flex flex-col items-center">
           <View className="w-16 h-16 rounded-full bg-yellow-100 border-4 border-yellow-300 flex items-center justify-center mb-2">
@@ -138,49 +156,99 @@ export default function ProfilePage() {
           </Card>
         </View>
 
-        {/* 成就勋章 */}
-        <Text className="block text-base font-black text-stone-800 mb-3">成就勋章</Text>
-        <View className="flex flex-row flex-wrap gap-3">
-          {ACHIEVEMENTS.map((ach) => {
-            const unlocked = unlockedAchievements.includes(ach.id)
-            const AchIcon = ach.icon
-            return (
-              <Card
-                key={ach.id}
-                className={`w-[calc(50%-6px)] border-2 shadow-sm ${
-                  unlocked
-                    ? ach.color
-                    : "bg-stone-50 border-stone-200 opacity-40"
-                }`}
-              >
-                <CardContent className="p-3 flex flex-row items-center gap-2">
-                  <View className={`w-10 h-10 rounded-xl flex items-center justify-center ${unlocked ? ach.color : "bg-stone-100 border-2 border-stone-200"}`}>
-                    {unlocked ? (
-                      <AchIcon size={20} color={ach.iconColor} />
-                    ) : (
-                      <AchIcon size={20} color="#a8a29e" />
-                    )}
-                  </View>
-                  <View className="flex-1">
-                    <Text className={`block text-xs font-black ${unlocked ? "text-stone-800" : "text-stone-400"}`}>
-                      {ach.name}
-                    </Text>
-                    <Text className="block text-xs text-stone-400 font-bold">{ach.desc}</Text>
-                    {unlocked && (
-                      <View className="flex flex-row items-center gap-1 mt-1">
-                        <Check size={10} color="#14b8a6" />
-                        <Text className="block text-xs text-teal-600 font-bold">已解锁</Text>
-                      </View>
-                    )}
-                  </View>
-                </CardContent>
-              </Card>
-            )
-          })}
+        {/* 花园入口 */}
+        <Card className="border-2 border-green-300 bg-gradient-to-b from-green-50 to-amber-50 shadow-md mb-4">
+          <CardContent className="p-4">
+            <View
+              style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+              onClick={() => Taro.navigateTo({ url: "/pages/garden/index" })}
+            >
+              <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <View className="w-10 h-10 rounded-xl bg-green-100 border-2 border-green-300 flex items-center justify-center">
+                  <TreePine size={20} color="#16a34a" />
+                </View>
+                <View style={{ marginLeft: "10px" }}>
+                  <Text className="block text-sm font-black text-stone-800">成功花园</Text>
+                  <Text className="block text-xs text-stone-500 font-bold">你的成功币在滋养生命之树</Text>
+                </View>
+              </View>
+              <View style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: "24px", marginRight: "4px" }}>🌳</Text>
+                <ArrowRight size={16} color="#16a34a" />
+              </View>
+            </View>
+          </CardContent>
+        </Card>
+
+        {/* 成就总览 */}
+        <View className="flex flex-row items-center justify-between mb-3">
+          <Text className="block text-base font-black text-stone-800">成就勋章</Text>
+          <Badge className="bg-teal-100 border-2 border-teal-300 text-teal-700">
+            <Text className="block text-xs font-bold">{unlockedCount}/{totalCount}</Text>
+          </Badge>
         </View>
 
+        {/* 分类别展示成就 */}
+        {Object.entries(groupedAchievements).map(([category, achs]) => {
+          const meta = CATEGORY_META[category] || { name: category, color: "bg-stone-100 border-2 border-stone-300", textColor: "text-stone-700" }
+          const categoryUnlocked = achs.filter(a => a.unlocked).length
+          return (
+            <View key={category} className="mb-4">
+              <View className="flex flex-row items-center gap-2 mb-2">
+                <View className={`rounded-full px-2 py-1 ${meta.color}`}>
+                  <Text className={`block text-xs font-black ${meta.textColor}`}>{meta.name}</Text>
+                </View>
+                <Text className="block text-xs text-stone-400 font-bold">{categoryUnlocked}/{achs.length}</Text>
+              </View>
+              <View className="flex flex-row flex-wrap gap-2">
+                {achs.map((ach) => (
+                  <Card
+                    key={ach.id}
+                    className={`border-2 shadow-sm ${ach.unlocked ? meta.color : "bg-stone-50 border-stone-200 opacity-40"}`}
+                    style={{ width: "calc(50% - 4px)" }}
+                  >
+                    <CardContent className="p-3">
+                      <View style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px" }}>
+                        <Text style={{ fontSize: "22px", opacity: ach.unlocked ? 1 : 0.4 }}>{ach.icon}</Text>
+                        <View style={{ flex: 1 }}>
+                          <Text className={`block text-xs font-black ${ach.unlocked ? "text-stone-800" : "text-stone-400"}`}>
+                            {ach.name}
+                          </Text>
+                          <Text className="block text-xs text-stone-400 font-bold">{ach.desc}</Text>
+                          {ach.unlocked ? (
+                            <View className="flex flex-row items-center gap-1 mt-1">
+                              <Check size={10} color="#14b8a6" />
+                              <Text className="block text-xs text-teal-600 font-bold">已解锁</Text>
+                            </View>
+                          ) : (
+                            <View className="mt-1">
+                              <View style={{ width: "100%", height: "4px", borderRadius: "2px", backgroundColor: "#e7e5e4" }}>
+                                <View
+                                  style={{
+                                    width: Math.min(100, Math.round(((ach.current_value || 0) / ach.threshold) * 100)) + "%",
+                                    height: "100%",
+                                    borderRadius: "2px",
+                                    backgroundColor: "#94a3b8",
+                                  }}
+                                />
+                              </View>
+                              <Text className="block text-xs text-stone-400 font-bold mt-1">
+                                {ach.current_value || 0}/{ach.threshold}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </CardContent>
+                  </Card>
+                ))}
+              </View>
+            </View>
+          )
+        })}
+
         {/* 等级一览 */}
-        <Text className="block text-base font-black text-stone-800 mb-3 mt-4">等级一览</Text>
+        <Text className="block text-base font-black text-stone-800 mb-3 mt-2">等级一览</Text>
         <View className="flex flex-col gap-2 mb-4">
           {LEVELS.map((level, idx) => {
             const isCurrent = idx === currentLevelIdx
