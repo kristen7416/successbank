@@ -17,6 +17,7 @@ const generateTTProjectConfig = (outputRoot: string) => {
     miniprogramRoot: './',
     projectname: 'coze-mini-program',
     appid: process.env.TARO_APP_TT_APPID || '',
+    compileType: 'miniprogram',
     setting: {
       urlCheck: false,
       es6: false,

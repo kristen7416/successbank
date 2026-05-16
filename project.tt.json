@@ -1,13 +1,13 @@
 {
-  "miniprogramRoot": "./dist-tt",
+  "miniprogramRoot": "./",
   "projectname": "success-bank",
   "appid": "",
+  "compileType": "miniprogram",
   "setting": {
     "urlCheck": false,
     "es6": false,
     "postcss": false,
     "minified": false
   },
-  "compileType": "miniprogram",
   "packOptions": { "ignore": [{ "type": "folder", "value": "./assets" }] }
 }
