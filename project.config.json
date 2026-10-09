@@ -9,7 +9,10 @@
     "enhance": false,
     "compileHotReLoad": false,
     "postcss": false,
-    "minified": false
+    "minified": true,
+    "minifyJS": true,
+    "minifyWXML": true,
+    "minifyWXSS": true
   },
   "compileType": "miniprogram",
   "packOptions": { "ignore": [{ "type": "folder", "value": "./assets" }] }
