@@ -22,7 +22,10 @@ const generateTTProjectConfig = (outputRoot: string) => {
       urlCheck: false,
       es6: false,
       postcss: false,
-      minified: false,
+      minified: true,
+      minifyJS: true,
+      minifyWXML: true,
+      minifyWXSS: true,
     },
     packOptions: { ignore: [{ type: 'folder', value: './assets' }] },
   };

@@ -7,6 +7,7 @@ export default defineAppConfig({
     'pages/profile/index',
     'pages/garden/index'
   ],
+  lazyCodeLoading: 'requiredComponents',
   window: {
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fffbeb',
