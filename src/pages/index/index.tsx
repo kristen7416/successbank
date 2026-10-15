@@ -54,7 +54,9 @@ export default function IndexPage() {
       }
 
       if (depositsRes.data?.data) {
-        setRecentDeposits(depositsRes.data.data || [])
+        const raw = depositsRes.data.data
+        const list = Array.isArray(raw) ? raw : (raw.list || [])
+        setRecentDeposits(list)
       }
 
       if (taskRes.data?.data) {

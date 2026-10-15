@@ -168,7 +168,43 @@ export default defineConfig<'vite'>(async (merge, _env) => {
           },
         },
         ...(isH5
-          ? []
+          ? [
+              {
+                name: 'fix-h5-tabbar-paths',
+                enforce: 'post' as const,
+                generateBundle(_options: any, bundle: Record<string, any>) {
+                  for (const [fileName, chunk] of Object.entries(bundle)) {
+                    if (fileName.endsWith('.js') && chunk.type === 'chunk' && typeof chunk.code === 'string') {
+                      if (chunk.code.includes('/static/images/')) {
+                        chunk.code = chunk.code.replace(/['"]\/static\/images\//g, '"./static/images/');
+                      }
+                    }
+                  }
+                },
+                closeBundle() {
+                  const outDir = path.resolve(__dirname, '..', outputRoot);
+                  const jsDir = path.resolve(outDir, 'js');
+                  if (fs.existsSync(jsDir)) {
+                    for (const file of fs.readdirSync(jsDir)) {
+                      if (file.endsWith('.js')) {
+                        const fp = path.join(jsDir, file);
+                        let content = fs.readFileSync(fp, 'utf-8');
+                        if (content.includes('static/images/')) {
+                          content = content.replace(/(\.\.\/|\/|\.\/)static\/images\//g, './static/images/');
+                          fs.writeFileSync(fp, content, 'utf-8');
+                        }
+                      }
+                    }
+                  }
+                  const htmlPath = path.resolve(outDir, 'index.html');
+                  if (fs.existsSync(htmlPath)) {
+                    let html = fs.readFileSync(htmlPath, 'utf-8');
+                    html = html.replace('<title>coze-mini-program</title>', '<title>成功银行 - 正向习惯与成就激励应用</title>');
+                    fs.writeFileSync(htmlPath, html, 'utf-8');
+                  }
+                },
+              },
+            ]
           : [
               UnifiedViteWeappTailwindcssPlugin({
                 rem2rpx: true,
