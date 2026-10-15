@@ -12,7 +12,8 @@ export default defineAppConfig({
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#fffbeb',
     navigationBarTitleText: '成功银行',
-    navigationBarTextStyle: 'black'
+    navigationBarTextStyle: 'black',
+    navigationStyle: 'custom'
   },
   tabBar: {
     color: '#94a3b8',
