@@ -76,14 +76,52 @@ const TREE_MILESTONES = [
   { level: 6, minCoins: 70 },
 ];
 
-function getStoredDeposits(): DepositItem[] {
+let memoryDeposits: DepositItem[] | null = null;
+let memoryBonusCoins: number | null = null;
+
+export const EVENT_DATA_UPDATED = 'SUCCESSBANK_DATA_UPDATED';
+
+export function notifyDataUpdated() {
   try {
-    const data = Taro.getStorageSync(STORAGE_KEYS.DEPOSITS);
-    if (Array.isArray(data) && data.length > 0) {
-      return data;
-    }
-  } catch {
-    // fallback
+    Taro.eventCenter.trigger(EVENT_DATA_UPDATED);
+  } catch (e) {
+    console.warn('[LocalStorageBackend] eventCenter.trigger error:', e);
+  }
+  if (typeof window !== 'undefined') {
+    try {
+      window.dispatchEvent(new CustomEvent('successbank_data_updated'));
+    } catch {}
+  }
+}
+
+function getStoredDeposits(): DepositItem[] {
+  if (memoryDeposits && Array.isArray(memoryDeposits) && memoryDeposits.length > 0) {
+    return memoryDeposits;
+  }
+
+  let parsed: any = null;
+  try {
+    parsed = Taro.getStorageSync(STORAGE_KEYS.DEPOSITS);
+  } catch (e) {
+    console.warn('[LocalStorageBackend] getStorageSync error:', e);
+  }
+
+  if (!parsed && typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEYS.DEPOSITS);
+      if (raw) parsed = JSON.parse(raw);
+    } catch {}
+  }
+
+  if (typeof parsed === 'string') {
+    try {
+      parsed = JSON.parse(parsed);
+    } catch {}
+  }
+
+  if (Array.isArray(parsed) && parsed.length > 0) {
+    memoryDeposits = parsed;
+    return parsed;
   }
 
   // 初始预置示范存款，让用户初次体验即有成就感
@@ -120,37 +158,56 @@ function getStoredDeposits(): DepositItem[] {
       created_at: new Date(now - 1000 * 60 * 60 * 24).toISOString(),
     },
   ];
-  try {
-    Taro.setStorageSync(STORAGE_KEYS.DEPOSITS, initialDeposits);
-  } catch {
-    // ignore
-  }
+  saveDeposits(initialDeposits);
   return initialDeposits;
 }
 
 function saveDeposits(deposits: DepositItem[]) {
+  memoryDeposits = deposits;
   try {
     Taro.setStorageSync(STORAGE_KEYS.DEPOSITS, deposits);
-  } catch {
-    // ignore
+  } catch (e) {
+    console.warn('[LocalStorageBackend] setStorageSync error:', e);
+  }
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.DEPOSITS, JSON.stringify(deposits));
+    } catch {}
   }
 }
 
 function getBonusCoins(): number {
-  try {
-    const val = Taro.getStorageSync(STORAGE_KEYS.BONUS_COINS);
-    return typeof val === 'number' ? val : 0;
-  } catch {
-    return 0;
+  if (typeof memoryBonusCoins === 'number') {
+    return memoryBonusCoins;
   }
+  let val: any = null;
+  try {
+    val = Taro.getStorageSync(STORAGE_KEYS.BONUS_COINS);
+  } catch {}
+  if (val === null || val === undefined || val === '') {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEYS.BONUS_COINS);
+        if (raw !== null) val = Number(raw);
+      } catch {}
+    }
+  }
+  const num = Number(val) || 0;
+  memoryBonusCoins = num;
+  return num;
 }
 
 function addBonusCoins(coins: number) {
+  const current = getBonusCoins();
+  const next = current + coins;
+  memoryBonusCoins = next;
   try {
-    const current = getBonusCoins();
-    Taro.setStorageSync(STORAGE_KEYS.BONUS_COINS, current + coins);
-  } catch {
-    // ignore
+    Taro.setStorageSync(STORAGE_KEYS.BONUS_COINS, next);
+  } catch {}
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      window.localStorage.setItem(STORAGE_KEYS.BONUS_COINS, String(next));
+    } catch {}
   }
 }
 
@@ -203,7 +260,8 @@ function getTreeLevel(totalCoins: number): number {
 export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.request.SuccessCallbackResult<any>> {
   const url = option.url || '';
   const method = (option.method || 'GET').toUpperCase();
-  const path = url.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+  const rawPath = url.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+  const path = rawPath.replace(/\/+$/, '') || '/';
 
   console.log(`[LocalStorageBackend] Intercepted ${method} ${path}`, option.data);
 
@@ -241,14 +299,22 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
   // 2. 存款列表与新增存款接口
   else if (path === '/api/deposits') {
     if (method === 'POST') {
-      const data = option.data || {};
+      let data = option.data || {};
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch {}
+      }
+      const coinsVal = Number(data.coins);
+      const validCoins = !Number.isNaN(coinsVal) && coinsVal > 0 ? coinsVal : 1;
+
       const newDeposit: DepositItem = {
         id: `dep_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         content: String(data.content || '').trim() || '记录一次成功',
         type: data.type || (data.content ? 'custom' : 'preset'),
         emotion: data.emotion || '开心',
         difficulty: data.difficulty || 'easy',
-        coins: Number(data.coins) || 1,
+        coins: validCoins,
         note: data.note || '',
         created_at: new Date().toISOString(),
       };
@@ -257,6 +323,7 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
       saveDeposits(deposits);
 
       console.log(`[LocalStorageBackend] Successfully stored deposit: +${newDeposit.coins} 成功币!`, newDeposit);
+      notifyDataUpdated();
 
       result = {
         code: 200,
@@ -265,11 +332,16 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
       };
     } else {
       // GET
+      let limit: number | undefined;
+      if (option.data && typeof option.data === 'object' && option.data.limit) {
+        limit = Number(option.data.limit);
+      }
+      const list = limit && limit > 0 ? deposits.slice(0, limit) : deposits;
       result = {
         code: 200,
         msg: 'success',
-        data: { list: deposits },
-        list: deposits,
+        data: { list },
+        list,
       };
     }
   }
@@ -348,6 +420,7 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
       } catch {
         // ignore
       }
+      notifyDataUpdated();
       result = {
         code: 200,
         msg: 'success',
@@ -377,6 +450,7 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
       },
     };
   } else if (path === '/api/tree/grow' && method === 'POST') {
+    notifyDataUpdated();
     result = {
       code: 200,
       msg: 'success',
@@ -386,6 +460,7 @@ export function handleLocalApi(option: Taro.request.Option<any>): Promise<Taro.r
       },
     };
   } else if (path === '/api/tree/remove-bug' && method === 'POST') {
+    notifyDataUpdated();
     result = {
       code: 200,
       msg: 'success',

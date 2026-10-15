@@ -1,5 +1,5 @@
 import Taro from '@tarojs/taro'
-import { handleLocalApi } from '@/services/local-storage-backend'
+import { handleLocalApi, notifyDataUpdated } from '@/services/local-storage-backend'
 
 /**
  * 网络请求模块
@@ -22,6 +22,7 @@ export namespace Network {
 
     export const request: typeof Taro.request = ((option: any) => {
         const url = option.url || ''
+        const method = String(option.method || 'GET').toUpperCase()
 
         // 静态部署/未配置后端时直接走本地存储引擎
         if (isMockRequired(url)) {
@@ -41,6 +42,9 @@ export namespace Network {
                 if (res.statusCode >= 400 && url.startsWith('/api/')) {
                     console.warn(`[Network] Remote ${url} returned ${res.statusCode}, falling back to local storage`)
                     return handleLocalApi(option)
+                }
+                if (['POST', 'PUT', 'DELETE'].includes(method) && res.statusCode < 400) {
+                    notifyDataUpdated()
                 }
                 return res
             })

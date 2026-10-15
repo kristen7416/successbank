@@ -1,5 +1,6 @@
 import { View, Text } from "@tarojs/components"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import Taro, { useDidShow } from "@tarojs/taro"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -55,14 +56,10 @@ export default function TasksPage() {
   const [expandedDay, setExpandedDay] = useState<number | null>(null)
   const [completing, setCompleting] = useState(false)
 
-  useEffect(() => {
-    fetchTaskData()
-  }, [])
-
-  const fetchTaskData = async () => {
+  const fetchTaskData = useCallback(async () => {
     try {
       const res = await Network.request({ url: "/api/tasks/progress" })
-      console.log("Tasks progress response:", res.data)
+      console.log("[TasksPage] Tasks progress response:", res.data)
       if (res.data?.data) {
         const data = res.data.data
         setCompletedDays(data.completed_days || [])
@@ -70,10 +67,34 @@ export default function TasksPage() {
         setTodayCompleted(data.today_completed || false)
       }
     } catch (err) {
-      console.log("Fetch task data error:", err)
+      console.log("[TasksPage] Fetch task data error:", err)
       setCurrentDay(1)
     }
-  }
+  }, [])
+
+  useDidShow(() => {
+    fetchTaskData()
+  })
+
+  useEffect(() => {
+    fetchTaskData()
+
+    const handleUpdate = () => {
+      fetchTaskData()
+    }
+
+    Taro.eventCenter.on('SUCCESSBANK_DATA_UPDATED', handleUpdate)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('successbank_data_updated', handleUpdate)
+    }
+
+    return () => {
+      Taro.eventCenter.off('SUCCESSBANK_DATA_UPDATED', handleUpdate)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('successbank_data_updated', handleUpdate)
+      }
+    }
+  }, [fetchTaskData])
 
   const handleCompleteTask = async (day: number) => {
     if (todayCompleted) return

@@ -1,6 +1,6 @@
 import { View, Text } from "@tarojs/components"
-import { useState, useEffect } from "react"
-import Taro from "@tarojs/taro"
+import { useState, useEffect, useCallback } from "react"
+import Taro, { useDidShow } from "@tarojs/taro"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Network } from "@/network"
@@ -31,43 +31,67 @@ export default function IndexPage() {
   const [todayCompleted, setTodayCompleted] = useState(false)
   const [quickDepositSuccess, setQuickDepositSuccess] = useState("")
 
-  useEffect(() => {
-    fetchHomeData()
-  }, [])
-
-  const fetchHomeData = async () => {
+  const fetchHomeData = useCallback(async () => {
     try {
       const [statsRes, depositsRes, taskRes] = await Promise.all([
         Network.request({ url: "/api/deposits/stats" }),
         Network.request({ url: "/api/deposits", data: { limit: 5 } }),
         Network.request({ url: "/api/tasks/today" }),
       ])
-      console.log("Home stats:", statsRes.data)
-      console.log("Home deposits:", depositsRes.data)
-      console.log("Home task:", taskRes.data)
+      console.log("[IndexPage] Home stats:", statsRes?.data)
+      console.log("[IndexPage] Home deposits:", depositsRes?.data)
+      console.log("[IndexPage] Home task:", taskRes?.data)
 
-      if (statsRes.data?.data) {
-        const stats = statsRes.data.data
-        setTotalCoins(stats.total_coins || 0)
-        setTotalDeposits(stats.total_deposits || 0)
-        setStreak(stats.streak || 0)
+      const stats = statsRes?.data?.data ?? statsRes?.data
+      if (stats) {
+        setTotalCoins(Number(stats.total_coins ?? stats.totalCoins) || 0)
+        setTotalDeposits(Number(stats.total_deposits ?? stats.totalDeposits) || 0)
+        setStreak(Number(stats.streak) || 0)
       }
 
-      if (depositsRes.data?.data) {
-        const raw = depositsRes.data.data
-        const list = Array.isArray(raw) ? raw : (raw.list || [])
-        setRecentDeposits(list)
-      }
+      const rawDep = depositsRes?.data?.data ?? depositsRes?.data
+      const list = Array.isArray(rawDep)
+        ? rawDep
+        : (Array.isArray(rawDep?.list) ? rawDep.list : [])
+      setRecentDeposits(list)
 
-      if (taskRes.data?.data) {
-        const taskData = taskRes.data.data
+      const taskData = taskRes?.data?.data ?? taskRes?.data
+      if (taskData) {
         setTodayTask({ day: taskData.day || 1, title: taskData.title || "今日任务" })
         setTodayCompleted(taskData.completed || false)
       }
     } catch (err) {
-      console.log("Fetch home data error:", err)
+      console.log("[IndexPage] Fetch home data error:", err)
     }
-  }
+  }, [])
+
+  // 页面每次显示时自动重新拉取最新数据（解决 Tab 切换与存款返回不刷新问题）
+  useDidShow(() => {
+    fetchHomeData()
+  })
+
+  // 监听全局数据变更事件，保证跨页面与本地存储变更实时响应
+  useEffect(() => {
+    fetchHomeData()
+
+    const handleDataUpdate = () => {
+      fetchHomeData()
+    }
+
+    Taro.eventCenter.on('SUCCESSBANK_DATA_UPDATED', handleDataUpdate)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('successbank_data_updated', handleDataUpdate)
+      window.addEventListener('focus', handleDataUpdate)
+    }
+
+    return () => {
+      Taro.eventCenter.off('SUCCESSBANK_DATA_UPDATED', handleDataUpdate)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('successbank_data_updated', handleDataUpdate)
+        window.removeEventListener('focus', handleDataUpdate)
+      }
+    }
+  }, [fetchHomeData])
 
   const handleQuickDeposit = async (label: string) => {
     try {

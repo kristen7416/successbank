@@ -246,6 +246,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'dist-*/**', 'node_modules/**'],
+    ignores: ['dist/**', 'dist-*/**', 'node_modules/**', '**/._*'],
   },
 ];

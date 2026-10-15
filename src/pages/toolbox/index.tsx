@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Network } from "@/network"
+import { notifyDataUpdated } from "@/services/local-storage-backend"
 import { Heart, Star, BookOpen, Shield, Sun, PenLine, RefreshCw, Check, ArrowLeft, Zap } from "lucide-react-taro"
 
 const AFFIRMATIONS = [
@@ -477,6 +478,7 @@ export default function ToolboxPage() {
                           type: "challenge",
                         },
                       })
+                      notifyDataUpdated()
                       Taro.switchTab({ url: "/pages/index/index" })
                     } catch (err) {
                       console.log("Challenge complete error:", err)

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Network } from "@/network"
+import { notifyDataUpdated } from "@/services/local-storage-backend"
 import { Heart, Sun, Shield, Coffee, Hand, Check, Coins, Sparkles } from "lucide-react-taro"
 
 const PRESET_TAGS = [
@@ -75,11 +76,13 @@ export default function DepositPage() {
         },
       })
       console.log("Deposit response:", res.data)
+      notifyDataUpdated()
 
       setShowSuccess(true)
       setTimeout(() => {
         setShowSuccess(false)
         resetForm()
+        notifyDataUpdated()
         Taro.switchTab({ url: "/pages/index/index" })
       }, 1500)
     } catch (err) {

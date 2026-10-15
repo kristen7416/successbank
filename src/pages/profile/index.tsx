@@ -1,6 +1,6 @@
 import { View, Text } from "@tarojs/components"
-import { useState, useEffect } from "react"
-import Taro from "@tarojs/taro"
+import { useState, useEffect, useCallback } from "react"
+import Taro, { useDidShow } from "@tarojs/taro"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -48,33 +48,54 @@ export default function ProfilePage() {
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<Achievement[]>([])
 
-  useEffect(() => {
-    fetchProfileData()
-  }, [])
-
-  const fetchProfileData = async () => {
+  const fetchProfileData = useCallback(async () => {
     try {
       const [statsRes, achievementsRes] = await Promise.all([
         Network.request({ url: "/api/deposits/stats" }),
         Network.request({ url: "/api/achievements" }),
       ])
-      console.log("Stats response:", statsRes.data)
-      console.log("Achievements response:", achievementsRes.data)
+      console.log("[ProfilePage] Stats response:", statsRes?.data)
+      console.log("[ProfilePage] Achievements response:", achievementsRes?.data)
 
-      if (statsRes.data?.data) {
-        const stats = statsRes.data.data
-        setTotalCoins(stats.total_coins || 0)
-        setTotalDeposits(stats.total_deposits || 0)
-        setStreak(stats.streak || 0)
+      const stats = statsRes?.data?.data ?? statsRes?.data
+      if (stats) {
+        setTotalCoins(Number(stats.total_coins ?? stats.totalCoins) || 0)
+        setTotalDeposits(Number(stats.total_deposits ?? stats.totalDeposits) || 0)
+        setStreak(Number(stats.streak) || 0)
       }
 
-      if (achievementsRes.data?.data) {
-        setAchievements(achievementsRes.data.data)
+      const achData = achievementsRes?.data?.data ?? achievementsRes?.data
+      if (Array.isArray(achData)) {
+        setAchievements(achData)
       }
     } catch (err) {
-      console.log("Fetch profile error:", err)
+      console.log("[ProfilePage] Fetch profile error:", err)
     }
-  }
+  }, [])
+
+  useDidShow(() => {
+    fetchProfileData()
+  })
+
+  useEffect(() => {
+    fetchProfileData()
+
+    const handleUpdate = () => {
+      fetchProfileData()
+    }
+
+    Taro.eventCenter.on('SUCCESSBANK_DATA_UPDATED', handleUpdate)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('successbank_data_updated', handleUpdate)
+    }
+
+    return () => {
+      Taro.eventCenter.off('SUCCESSBANK_DATA_UPDATED', handleUpdate)
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('successbank_data_updated', handleUpdate)
+      }
+    }
+  }, [fetchProfileData])
 
   const currentLevel = LEVELS.reduce((acc, level) => {
     return totalCoins >= level.minCoins ? level : acc

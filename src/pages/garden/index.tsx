@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text } from "@tarojs/components";
-import Taro from "@tarojs/taro";
+import Taro, { useDidShow } from "@tarojs/taro";
 import { Network } from "@/network";
 import { ArrowLeft } from "lucide-react-taro";
 
@@ -22,7 +22,7 @@ export default function Garden() {
   const [bugRemoving, setBugRemoving] = useState(false);
   const [sparkles, setSparkles] = useState<Array<{id: number; x: number; y: number; delay: number}>>([]);
 
-  const fetchTreeState = async () => {
+  const fetchTreeState = useCallback(async () => {
     try {
       const res = await Network.request({ url: "/api/tree" });
       console.log("[Garden] tree state:", res.data);
@@ -32,11 +32,31 @@ export default function Garden() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useDidShow(() => {
+    fetchTreeState();
+  });
 
   useEffect(() => {
     fetchTreeState();
-  }, []);
+
+    const handleUpdate = () => {
+      fetchTreeState();
+    };
+
+    Taro.eventCenter.on('SUCCESSBANK_DATA_UPDATED', handleUpdate);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('successbank_data_updated', handleUpdate);
+    }
+
+    return () => {
+      Taro.eventCenter.off('SUCCESSBANK_DATA_UPDATED', handleUpdate);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('successbank_data_updated', handleUpdate);
+      }
+    };
+  }, [fetchTreeState]);
 
   const handleGrow = async () => {
     if (growing) return;

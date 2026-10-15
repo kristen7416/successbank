@@ -211,6 +211,34 @@ export default defineConfig<'vite'>(async (merge, _env) => {
                 cssEntries: [path.resolve(__dirname, '../src/app.css')],
               }),
             ]),
+        ...(process.env.TARO_ENV === 'weapp'
+          ? [
+              {
+                name: 'fix-weapp-tabbar-paths',
+                closeBundle() {
+                  const outDir = path.resolve(__dirname, '..', outputRoot);
+                  const appJsonPath = path.resolve(outDir, 'app.json');
+                  if (fs.existsSync(appJsonPath)) {
+                    try {
+                      const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf-8'));
+                      if (appJson.tabBar?.list) {
+                        appJson.tabBar.list = appJson.tabBar.list.map((item: Record<string, string>) => {
+                          const fixed: Record<string, string> = {};
+                          for (const [key, value] of Object.entries(item)) {
+                            fixed[key] = typeof value === 'string' && value.startsWith('./')
+                              ? value.replace(/^\.\//, '')
+                              : value;
+                          }
+                          return fixed;
+                        });
+                        fs.writeFileSync(appJsonPath, JSON.stringify(appJson, null, 2));
+                      }
+                    } catch {}
+                  }
+                },
+              },
+            ]
+          : []),
         ...(process.env.TARO_ENV === 'tt'
           ? [
               {
